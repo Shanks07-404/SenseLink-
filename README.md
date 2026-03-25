@@ -10,6 +10,17 @@ SenseLink leverages signal-based anomaly detection to provide early risk estimat
 - **Doctor-Facing Dashboard:** A full-stack demo featuring real-time analysis and visual diagnostic graphs.
 
 ## Tech Stack
-- **Modeling:** Scikit-Learn, SciPy
-- **Data Handling:** Pandas, NumPy
-- **Deployment:** Streamlit, Matplotlib
+**Frontend:** 
+HTML, CSS, JavaScript
+
+**Backend:**
+Python, Flask (API + server)
+
+**Data Processing & ML:**
+NumPy, Pandas (data handling)
+Librosa (voice signal analysis)
+SciPy / basic signal processing (tremor detection)
+
+**Data Input:**
+CSV files (wearable sensor data)
+WAV audio files (voice recordings)
