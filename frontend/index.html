@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SenseLink | AI-Driven Parkinson's Early Detection</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', Arial, sans-serif;}
+    body { background: #f8f9fb; color: #2b2e3c; min-height: 100vh; display: flex; flex-direction: column; }
+    header {
+      height: 56px; width: 100%; background: #fff; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px; border-bottom: 1px solid #ebebeb; box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    }
+    .logo { display: flex; align-items: center; font-weight: 600; color: #348bf4; font-size: 1.2rem; text-decoration: none;}
+    .logo-icon {
+      background: #348bf4; color: #fff; font-weight: bold; border-radius: 50%; width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 1rem;
+    }
+    nav { display: flex; gap: 30px; }
+    nav a { text-decoration: none; color: #707685; font-size: 1rem; font-weight: 500; transition: color 0.2s; cursor: pointer;}
+    nav a.active, nav a:hover { color: #348bf4; }
+
+    main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;}
+    .page { display: none; width: 100%; }
+    .page.active { display: flex; flex-direction: column; align-items: center; animation: fade-in .3s; }
+    @keyframes fade-in { from {opacity: 0;} to {opacity: 1;} }
+    .top-label { color: #348bf4; font-size: 0.95rem; background: #eef6fb; border-radius: 16px; padding: 0.35em 1em; margin-bottom: 24px; display: inline-block; font-weight: 500; }
+    .title { font-size: 2.75rem; font-weight: 700; margin-bottom: 15px; line-height: 1.13; color: #2b2e3c;}
+    .title .brand { color: #348bf4; font-weight: 800;}
+    .description { font-size: 1.05rem; color: #707685; font-weight: 400; margin-bottom: 28px; margin-top: 14px;}
+    .open-btn { background: #348bf4; color: #fff; border: none; border-radius: 8px; padding: 12px 28px; font-size: 1.1rem; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(52,139,244,0.11); margin-bottom: 60px; margin-top: 5px; transition: background 0.2s;}
+    .open-btn:hover { background: #2467b5; }
+    .cards-container { display: flex; gap: 34px; justify-content: center; margin-top: 14px; margin-bottom: 60px;}
+    .card { background: #fff; border-radius: 18px; box-shadow: 0 2px 18px rgba(48, 72, 250, 0.05); padding: 32px 24px; width: 240px; text-align: left; display: flex; flex-direction: column; align-items: flex-start; border: 1px solid #f0f3fa; transition: box-shadow 0.2s;}
+    .card:hover { box-shadow: 0 4px 24px rgba(52,139,244,0.14); border-color: #e2e7f3; }
+    .card-icon { font-size: 1.65rem; background: #eef6fb; color: #348bf4; border-radius: 50%; padding: 10px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center;}
+    .card-title { font-size: 1.05rem; font-weight: 600; color: #374151; margin-bottom: 6px;}
+    .card-desc { font-size: 0.97rem; color: #5d647c; font-weight: 400; margin-top: 3px; line-height: 1.5;}
+
+    .dashboard-container { width: 100%; max-width: 1180px; margin-top: 44px; display: flex; gap: 38px; align-items: flex-start; justify-content: center; }
+    .sidebar { background: #f7f8fa; border-right: 1.5px solid #ebebeb; width: 200px; min-width: 180px; padding: 30px 0 0 0; border-radius: 18px; height: 490px; box-shadow: 0 1px 18px rgba(48,72,250,0.03); display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+    .sidebar-title { font-weight: 600; color: #737787; font-size: 1.04rem; padding: 0 30px 8px 26px;}
+    .search-box { padding: 0 22px 8px 22px; width: 100%; }
+    .search-box input { width: 100%; padding: 7px 12px; border-radius: 7px; border: 1px solid #dbe3ec; background: #fff; font-size: 1.01rem; color: #555; margin-bottom: 7px; }
+    .patient-list { width: 100%; padding: 0 16px; display: flex; flex-direction: column; gap: 10px; }
+    .patient-item { background: #e8f0ff; color: #348bf4; font-weight: 600; border-radius: 8px; padding: 9px 12px; font-size: 1rem; cursor: pointer; border: none; text-align: left; transition: background 0.2s, color 0.2s; outline: none; }
+    .patient-item:not(.selected) { background: #f7f9fc; color: #485685; font-weight: 500;}
+    .patient-item.selected { background: #348bf4; color: #fff; }
+    .patient-item:hover { background: #e8f0ff; color: #348bf4; }
+    .sidebar-list {padding: 0;}
+    .no-patients { color:#aaa; padding:20px 5px 10px 10px; font-size:1.05rem; }
+
+    .dashboard-content { flex: 1; display: flex; flex-direction: column; gap: 24px; margin-top: 8px; }
+    .dash-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 7px; }
+    .dash-title { font-size: 1.43rem; font-weight: 700; color: #2b2e3c; letter-spacing: 0.02em; }
+    .dash-desc { color: #707685; font-size: 1.02rem; margin-top: 3px; margin-bottom: 7px; font-weight: 400; }
+    .analyze-btn { background: #348bf4; color: #fff; border: none; border-radius: 8px; padding: 10px 23px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-left: 10px; box-shadow: 0 2px 8px rgba(52,139,244,0.11); transition: background 0.16s; }
+    .analyze-btn:hover { background: #2467b5; }
+
+    .panel { background: #fff; border-radius: 13px; box-shadow: 0 1px 10px rgba(48,72,250,0.03); padding: 22px 30px 16px 30px; margin-bottom: 7px; text-align: left; border: 1px solid #f0f3fa; min-width: 560px; width: 700px; max-width: 98vw; }
+    .panel-title { font-weight: 600; font-size: 1.07rem; color: #37599b; margin-bottom: 7px; display: flex; align-items: center; gap: 7px; }
+    .panel-title .icon { font-size: 1.25rem; }
+    .panel-content { margin-top: 4px; font-size: 1rem; color: #3a4254;}
+    .info-row { display: flex; gap: 42px; margin-bottom: 6px; font-size: 1.02rem; color: #49596f; }
+    .info-row .label { font-weight: 600; color: #374151; width: 86px; display: inline-block;}
+    .info-row .value {font-weight: 500;}
+    .vital-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 8px; }
+    .vital-card { background: #e9f4ff; border-radius: 10px; padding: 13px 17px; font-size: 1rem; color: #2b2e3c; font-weight: 600; display: flex; align-items: center; gap: 8px; min-width: 140px; margin-bottom: 9px; }
+    .vital-card .icon { color: #348bf4; font-size: 1.03rem;}
+    .prescription-box { background: #f8fbfe; border-radius: 7px; min-height: 70px; margin-top: 8px; border: 1.2px solid #e9eff9; padding: 18px 16px 11px 16px; color: #707685; font-size: 1.02rem; font-weight: 400; width: 96%;}
+    .analysis-wrap { width: 100%; max-width: 1270px; margin: 63px auto 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
+    .analysis-title { font-size: 1.45rem; font-weight: 700; color: #232b38; margin-bottom: 4px; margin-top: 32px; text-align: left; }
+    .analysis-desc { color: #707685; font-size: 1.04rem; margin-bottom: 36px; margin-top: 3px; text-align: left; }
+    .analysis-grids { width: 100%; display: flex; flex-wrap: wrap; gap: 40px; justify-content: center; margin: 0 auto 15px auto; }
+    .analysis-panel { background: #fff; border-radius: 13px; box-shadow: 0 1px 10px rgba(48,72,250,0.03); padding: 19px 20px 25px 20px; width: 470px; min-width: 290px; border: 1.3px solid #e5eefb; display: flex; flex-direction: column; align-items: center; }
+    .analysis-panel-title { width: 100%; font-weight: 600; font-size: 1.07rem; color: #37599b; margin-bottom: 6px; display: flex; align-items: center; gap: 7px; text-align: left; }
+    .analysis-btn { width: 100%; background: #348bf4; color: #fff; border: none; border-radius: 7px; padding: 11px 0; font-size: 1rem; font-weight: 600; margin-bottom: 14px; cursor: pointer; box-shadow: 0 2px 8px rgba(52,139,244,0.09); transition: background 0.17s; }
+    .analysis-btn:hover { background: #2467b5; }
+    .analysis-viz { width: 100%; min-height: 150px; height: 170px; background: #f7faff; border-radius: 9px; border: 1.2px dashed #d8e7fb; display: flex; align-items: center; justify-content: center; color: #8894aa; font-size: 1.01rem; margin-top: 0; }
+    .modal {
+      display: none; 
+      position: fixed; 
+      z-index: 9001; 
+      left: 0; top: 0; width: 100vw; height: 100vh;
+      overflow: auto; background: rgba(0,0,0, 0.7);
+      justify-content: center; align-items: center;
+    }
+    .modal-content {
+      margin: auto;
+      display: block;
+      max-width: 92vw;
+      max-height: 88vh;
+      border-radius: 14px;
+      box-shadow: 0 4px 32px #000c;
+      border: 3px solid #fff;
+      background: #fff;
+    }
+    .modal-close {
+      position: absolute; top: 30px; right: 65px; color: #fff; font-size: 2.5rem; font-weight: 700;
+      cursor: pointer; text-shadow: 0 2px 8px #000;
+      z-index: 9999;
+    }
+    @media (max-width: 600px) {
+      .modal-close { right: 20px; top: 12px; font-size: 2rem;}
+    }
+    footer { width: 100%; text-align: center; padding: 18px 0 13px 0; background: transparent; color: #707685; font-size: 0.97rem; font-weight: 400; letter-spacing: 0.03em;}
+    footer a { color: #348bf4; text-decoration: none; font-weight: 500; margin: 0 3px;}
+    .footer-sep { margin: 0 4px; color: #bababa; }
+    @media (max-width: 1200px) {
+      .dashboard-container {max-width: 99vw;}
+      .panel {min-width: 90vw; width: 96vw;}
+      .analysis-panel {width: 95vw;}
+      .analysis-wrap {max-width: 97vw;}
+    }
+    @media (max-width: 950px) {
+      .dashboard-container {flex-direction: column; gap: 8px;}
+      .panel, .dashboard-content {width: 98vw; min-width: 320px; max-width: 99vw;}
+      .sidebar {width: 96vw; min-width: none; height: auto;}
+      .analysis-grids {flex-direction: column; gap: 18px;}
+      .analysis-panel {width: 97vw;}
+    }
+    @media (max-width: 800px) {
+      .cards-container {flex-direction: column; gap: 20px; align-items: center;}
+      .card {width: 93vw;}
+      header {padding: 0 14px;}
+      main {padding-left: 0; padding-right: 0;}
+    }
+    @media (max-width: 500px) {
+      .title {font-size: 2.0rem;}
+      .open-btn {font-size: 0.94rem; padding: 10px 18px;}
+      .card {padding: 22px 10px;}
+      .dashboard-container {flex-direction: column; gap: 2px;}
+      .panel {padding: 13px 7px 10px 7px;}
+      .sidebar {padding: 13px 0 0 0;}
+      .analysis-panel {padding: 10px 5px;}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="#" class="logo"><span class="logo-icon">🧠</span> SenseLink</a>
+    <nav>
+      <a id="nav_home" onclick="showPage('home')" class="active">Home</a>
+      <a id="nav_dashboard" onclick="showPage('dashboard')">Dashboard</a>
+      <a id="nav_analysis" onclick="showPage('analysis')">Analysis</a>
+    </nav>
+  </header>
+  <main>
+    <section id="home" class="page active">
+      <span class="top-label">AI-Powered Early Detection Platform</span>
+      <div class="title">
+        <span class="brand">SenseLink</span><br />
+        AI-Driven Parkinson's Early Detection
+      </div>
+      <div class="description">
+        Monitor tremors, movement irregularities, and speech patterns in real time<br />
+        with advanced AI analytics.
+      </div>
+      <button class="open-btn" onclick="showPage('dashboard')">Open Dashboard</button>
+      <div class="cards-container">
+        <div class="card">
+          <div class="card-icon">💓</div>
+          <div class="card-title">Patient Dashboard</div>
+          <div class="card-desc">
+            Comprehensive patient management with vital signs monitoring and medical history tracking.
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-icon">🎤</div>
+          <div class="card-title">Voice Analysis</div>
+          <div class="card-desc">
+            AI-powered speech pattern detection to identify early signs of neurological conditions.
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-icon">🤲</div>
+          <div class="card-title">Movement Tracking</div>
+          <div class="card-desc">
+            Real-time hand tremor detection and movement irregularity analysis with visual feedback.
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="dashboard" class="page">
+      <div class="dashboard-container">
+        <aside class="sidebar">
+          <div class="sidebar-title">🦠 Patients List</div>
+          <div class="search-box">
+            <input id="searchInput" type="text" placeholder="Search patients..." oninput="filterPatients()" autocomplete="off">
+          </div>
+          <ul id="patientList" class="patient-list sidebar-list"></ul>
+        </aside>
+        <div class="dashboard-content">
+          <div class="dash-header">
+            <div>
+              <div class="dash-title">Patient Dashboard</div>
+              <div class="dash-desc">Monitor patient health and perform AI-powered analysis</div>
+            </div>
+            <button class="analyze-btn" onclick="showPage('analysis')">🧬 Analyze for Parkinson's</button>
+          </div>
+          <div class="panel">
+            <div class="panel-title"><span class="icon">👤</span> Patient Information</div>
+            <div class="panel-content" id="patientInfo"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-title"><span class="icon">💓</span> Vital Signs</div>
+            <div class="vital-grid" id="patientVitals"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-title"><span class="icon">💊</span> Prescription Summary</div>
+            <div class="prescription-box" id="patientPrescription"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="analysis" class="page">
+      <div class="analysis-wrap">
+        <div class="analysis-title">Parkinson's Analysis</div>
+        <div class="analysis-desc">Upload voice and movement data for AI-powered early detection analysis</div>
+        <div class="analysis-grids">
+          <div class="analysis-panel">
+            <div class="analysis-panel-title"><span style="font-size:1.25rem">🎤</span> Voice Tremor Analysis</div>
+            <button class="analysis-btn" onclick="analyzeVoice()">Analyze Voice</button>
+            <div class="analysis-viz" id="voiceGraph">Click analyze to see visualization</div>
+            <div id="voiceResult" style="margin-top:7px;"></div>
+          </div>
+          <div class="analysis-panel">
+            <div class="analysis-panel-title"><span style="font-size:1.3rem">🤲</span> Hand Tremor Analysis</div>
+            <button class="analysis-btn" onclick="analyzeMovement()">Analyze Movement</button>
+            <div class="analysis-viz" id="movementGraph">Click analyze to see visualization</div>
+            <div id="movementResult" style="margin-top:7px;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer>
+    Powered by AI — <a href="#">SenseLink Research</a>
+    <span class="footer-sep">2025</span>
+  </footer>
+  <div id="imgModal" class="modal" onclick="closeModal(event)">
+    <span class="modal-close" onclick="closeModal()">&times;</span>
+    <img class="modal-content" id="modalImg">
+  </div>
+  <script>
+    // Patient database
+    const patients = [
+      { name: "Vrushank Tipnis", gender: "Male", age: "28 years", lastVisit: "2025-01-13", vitals: { "Weight": "72 kg", "Height": "178 cm", "BP": "118/76", "O₂ Sat": "98%", "Heart Rate": "68 bpm"}, prescription: "<i>Enter prescription notes and medications...</i>" },
+      { name: "Riya Mehta", gender: "Female", age: "27 years", lastVisit: "2025-01-10", vitals: { "Weight": "60 kg", "Height": "163 cm", "BP": "110/70", "O₂ Sat": "97%", "Heart Rate": "72 bpm"}, prescription: "<i>Vitamin D supplementation recommended</i>" },
+      { name: "Aarav Shah", gender: "Male", age: "35 years", lastVisit: "2025-01-08", vitals: { "Weight": "69 kg", "Height": "171 cm", "BP": "122/82", "O₂ Sat": "99%", "Heart Rate": "67 bpm"}, prescription: "<i>Monitor BP over next 2 weeks</i>" },
+      { name: "Sara Ali", gender: "Female", age: "42 years", lastVisit: "2024-12-29", vitals: { "Weight": "65 kg", "Height": "164 cm", "BP": "115/73", "O₂ Sat": "97%", "Heart Rate": "70 bpm"}, prescription: "<i>Continue physiotherapy sessions</i>" },
+      { name: "Vikram Singh", gender: "Male", age: "53 years", lastVisit: "2024-12-19", vitals: { "Weight": "77 kg", "Height": "169 cm", "BP": "125/85", "O₂ Sat": "96%", "Heart Rate": "73 bpm"}, prescription: "<i>No new medication. Review after 1 month.</i>" },
+      { name: "Priya Patel", gender: "Female", age: "30 years", lastVisit: "2024-12-01", vitals: { "Weight": "55 kg", "Height": "158 cm", "BP": "108/65", "O₂ Sat": "98%", "Heart Rate": "74 bpm"}, prescription: "<i>Add iron-rich foods to diet</i>" }
+    ];
+    let currentFilteredPatients = patients.slice();
+    let selectedPatientIdx = 0;
+
+    function renderPatientList(filterText = "") {
+      const ul = document.getElementById('patientList');
+      ul.innerHTML = '';
+      let found = false;
+      currentFilteredPatients = patients
+        .map((p, idx) => ({...p, __idx: idx}))
+        .filter(p => p.name.toLowerCase().includes(filterText.toLowerCase()));
+      if (currentFilteredPatients.length === 0) {
+        ul.innerHTML = '<div class="no-patients">No patients found</div>';
+        found = false;
+      } else {
+        found = true;
+        currentFilteredPatients.forEach((pObj, i) => {
+          const li = document.createElement('li');
+          const isSel = (patients[pObj.__idx].name === patients[selectedPatientIdx].name);
+          li.innerHTML = `<button class="patient-item${isSel ? " selected" : ""}" onclick="selectPatient(${pObj.__idx}, this)">${pObj.name}</button>`;
+          ul.appendChild(li);
+        });
+      }
+      if (!found) {
+        document.getElementById('patientInfo').innerHTML = '';
+        document.getElementById('patientVitals').innerHTML = '';
+        document.getElementById('patientPrescription').innerHTML = '';
+      }
+    }
+    function renderPatientDetails(idx) {
+      const p = patients[idx];
+      const icons = ["🪙","📏","💧","💨","❤️"];
+      document.getElementById('patientInfo').innerHTML = `
+        <div class="info-row"><span class="label">Name</span> <span class="value">${p.name}</span></div>
+        <div class="info-row"><span class="label">Gender</span> <span class="value">${p.gender}</span></div>
+        <div class="info-row"><span class="label">Age</span> <span class="value">${p.age}</span></div>
+        <div class="info-row"><span class="label">Last Visit</span> <span class="value">${p.lastVisit}</span></div>
+      `;
+      const vitalLabels = Object.keys(p.vitals);
+      document.getElementById('patientVitals').innerHTML =
+        vitalLabels.map((v, i) => `<div class="vital-card"><span class="icon">${icons[i]}</span> ${v} <strong>${p.vitals[v]}</strong></div>`).join('');
+      document.getElementById('patientPrescription').innerHTML = p.prescription;
+    }
+    function selectPatient(idx, btn) {
+      selectedPatientIdx = idx;
+      Array.from(document.querySelectorAll('.patient-item')).forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      renderPatientDetails(idx);
+    }
+    function filterPatients() {
+      const val = document.getElementById('searchInput').value;
+      renderPatientList(val);
+      if (currentFilteredPatients.length > 0) {
+        renderPatientDetails(currentFilteredPatients[0].__idx);
+        Array.from(document.querySelectorAll('.patient-item')).forEach((btn, i) => {
+          btn.classList.toggle('selected', currentFilteredPatients[i].__idx === selectedPatientIdx);
+        });
+      }
+    }
+    function showPage(pageId) {
+      document.querySelectorAll('.page').forEach(e => e.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+      document.querySelectorAll('nav a').forEach(e => e.classList.remove('active'));
+      document.getElementById('nav_' + pageId).classList.add('active');
+    }
+
+    function analyzeMovement() {
+      const graphDiv = document.getElementById('movementGraph');
+      const resultDiv = document.getElementById('movementResult');
+      graphDiv.innerHTML = "Analyzing, please wait...";
+      resultDiv.innerHTML = "";
+
+      fetch('/analyze_movement')
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            graphDiv.innerHTML = "<span style='color:red;'>Error: " + data.error + "</span>";
+          } else {
+            graphDiv.innerHTML = `<img src="data:image/png;base64,${data.image}" id="analyzeImg" style="width:100%;max-height:160px;object-fit:contain;border-radius:7px;cursor:pointer;" title="Click to enlarge">`;
+            document.getElementById('analyzeImg').onclick = function() { openModal(this.src); };
+            resultDiv.innerHTML = `<div style="background:#e9f4ff;border-radius:7px;padding:10px 13px;font-weight:500;color:#234;">${data.status}<br><span style="font-size:0.95em;color:#555;">${data.result}</span></div>`;
+          }
+        })
+        .catch(err => {
+          graphDiv.innerHTML = "<span style='color:red;'>Server error occurred.</span>";
+          resultDiv.innerHTML = "";
+        });
+    }
+
+    function analyzeVoice() {
+      const graphDiv = document.getElementById('voiceGraph');
+      const resultDiv = document.getElementById('voiceResult');
+      graphDiv.innerHTML = "Analyzing, please wait...";
+      resultDiv.innerHTML = "";
+
+      fetch('/analyze_voice')
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            graphDiv.innerHTML = "<span style='color:red;'>Error: " + data.error + "</span>";
+          } else {
+            graphDiv.innerHTML = `<img src="data:image/png;base64,${data.image}" id="voiceImg" style="width:100%;max-height:160px;object-fit:contain;border-radius:7px;cursor:pointer;" title="Click to enlarge">`;
+            document.getElementById('voiceImg').onclick = function() { openModal(this.src); };
+            resultDiv.innerHTML = `<div style="background:#e9f4ff;border-radius:7px;padding:10px 13px;font-weight:500;color:#234;">${data.status}<br><span style="font-size:0.95em;color:#555;">${data.result}</span></div>`;
+          }
+        })
+        .catch(err => {
+          graphDiv.innerHTML = "<span style='color:red;'>Server error occurred.</span>";
+          resultDiv.innerHTML = "";
+        });
+    }
+
+    function openModal(imgSrc) {
+      let modal = document.getElementById("imgModal");
+      let modalImg = document.getElementById("modalImg");
+      modalImg.src = imgSrc;
+      modal.style.display = "flex";
+    }
+    function closeModal(event) {
+      if (!event || event.target.className === 'modal' || event.target.className === 'modal-close')
+        document.getElementById("imgModal").style.display = "none";
+    }
+
+    window.onload = function() {
+      renderPatientList();
+      renderPatientDetails(0);
+    }
+  </script>
+</body>
+</html>
