@@ -17,10 +17,10 @@ HTML, CSS, JavaScript
 Python, Flask (API + server)
 
 **Data Processing & ML:**
-NumPy, Pandas (data handling)
-Librosa (voice signal analysis)
+NumPy, Pandas (data handling),
+Librosa (voice signal analysis),
 SciPy / basic signal processing (tremor detection)
 
 **Data Input:**
-CSV files (wearable sensor data)
+CSV files (wearable sensor data),
 WAV audio files (voice recordings)
